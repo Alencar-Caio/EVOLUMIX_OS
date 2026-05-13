@@ -1,0 +1,29 @@
+sistema:
+  nome: EVOLUMIX OS
+  versao: 1.0
+  tipo: Sistema Comercial Inteligente
+
+empresa:
+  nome: Evolumix Distribuição e Suprimentos
+
+pilares:
+
+  engenharia_quimica:
+    marca: Sevengel
+    foco:
+      - diluição inteligente
+      - flotação
+      - rendimento operacional
+
+  engenharia_consumo:
+    marca: Softys Elite
+    foco:
+      - controle de consumo
+      - comodato
+      - redução de desperdício
+
+  inteligencia_comercial:
+    foco:
+      - diagnóstico 360
+      - ROI
+      - automação de vendas
