@@ -25,3 +25,5 @@ jobs:
         run: python main.py
       - name: Validate YAML data file
         run: python -c "import yaml, pathlib; pathlib.Path('core/EVOLUMIX_FOUNDATION_v1.yaml').read_text(encoding='utf-8'); yaml.safe_load(open('core/EVOLUMIX_FOUNDATION_v1.yaml', 'r', encoding='utf-8'))"
+      - name: Run tests
+        run: pytest -q

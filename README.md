@@ -45,6 +45,14 @@ Instale as dependências com:
 python3 -m pip install -r requirements.txt
 ```
 
+## Testes
+
+Execute os testes com:
+
+```bash
+python3 -m pytest -q
+```
+
 ## Uso básico
 
 ```bash
