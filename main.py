@@ -1,7 +1,12 @@
 import argparse
 
-from modules.client import add_client, display_clients, load_clients
-from modules.roi import calculate_roi, calculate_monthly_savings, display_roi_results
+from modules.client import add_client, display_clients, get_client_by_id, load_clients
+from modules.roi import (
+    add_roi_scenario,
+    display_roi_results,
+    display_roi_scenarios,
+    load_roi_scenarios,
+)
 from modules.system import display_system_info, load_config
 
 
@@ -28,8 +33,32 @@ def prompt_add_client() -> None:
     print(f"Cliente '{cliente['nome']}' cadastrado com ID {cliente['id']}.")
 
 
+def prompt_select_client(clientes: list[dict]) -> dict | None:
+    if not clientes:
+        print("Nenhum cliente cadastrado. Adicione um cliente antes.")
+        return None
+
+    display_clients(clientes)
+    raw_id = input("Digite o ID do cliente para ROI: ").strip()
+    if not raw_id.isdigit():
+        print("ID inválido. Operação cancelada.")
+        return None
+
+    cliente = get_client_by_id(clientes, int(raw_id))
+    if cliente is None:
+        print("Cliente não encontrado. Operação cancelada.")
+        return None
+
+    return cliente
+
+
 def prompt_calculate_roi() -> None:
     print("\nCalcular ROI")
+    clientes = load_clients()
+    cliente = prompt_select_client(clientes)
+    if cliente is None:
+        return
+
     current_cost = parse_currency(input("Custo atual mensal (R$): ").strip(), "custo atual")
     if current_cost is None:
         return
@@ -43,6 +72,18 @@ def prompt_calculate_roi() -> None:
         return
 
     display_roi_results(current_cost, optimized_cost, investment)
+    scenario = add_roi_scenario(
+        client_id=cliente["id"],
+        client_name=cliente["nome"],
+        current_monthly_cost=current_cost,
+        optimized_monthly_cost=optimized_cost,
+        investment=investment,
+    )
+    print(f"Cenário de ROI salvo como ID {scenario['id']} para o cliente {cliente['nome']}.")
+
+
+def prompt_list_roi_scenarios() -> None:
+    display_roi_scenarios(load_roi_scenarios())
 
 
 def run_interactive_menu() -> None:
@@ -50,8 +91,9 @@ def run_interactive_menu() -> None:
         print("\n--- MENU INTERATIVO ---")
         print("1. Listar clientes")
         print("2. Adicionar cliente")
-        print("3. Calcular ROI")
-        print("4. Sair")
+        print("3. Calcular ROI para cliente")
+        print("4. Listar cenários de ROI salvos")
+        print("5. Sair")
 
         opcao = input("Escolha uma opção: ").strip()
         if opcao == "1":
@@ -62,6 +104,8 @@ def run_interactive_menu() -> None:
         elif opcao == "3":
             prompt_calculate_roi()
         elif opcao == "4":
+            prompt_list_roi_scenarios()
+        elif opcao == "5":
             print("Saindo...")
             break
         else:
@@ -74,6 +118,7 @@ def main() -> None:
     parser.add_argument("--list-clients", action="store_true", help="Listar clientes cadastrados")
     parser.add_argument("--add-client", action="store_true", help="Adicionar um novo cliente")
     parser.add_argument("--calculate-roi", action="store_true", help="Calcular ROI com dados de custo")
+    parser.add_argument("--list-roi", action="store_true", help="Listar cenários de ROI salvos")
     args = parser.parse_args()
 
     config = load_config()
@@ -96,9 +141,13 @@ def main() -> None:
         prompt_calculate_roi()
         return
 
+    if args.list_roi:
+        prompt_list_roi_scenarios()
+        return
+
     print("\n--- CLIENTES ---")
     display_clients(load_clients())
-    print("\nUse '--interactive' para abrir o menu de operações de cliente ou '--calculate-roi' para calcular ROI.")
+    print("\nUse '--interactive' para abrir o menu de operações de cliente, '--calculate-roi' para calcular ROI ou '--list-roi' para ver cenários salvos.")
 
 
 if __name__ == "__main__":

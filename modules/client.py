@@ -22,6 +22,14 @@ def save_clients(clients: list[dict], path: str | Path | None = None) -> None:
         yaml.safe_dump({"clients": clients}, arquivo, sort_keys=False, allow_unicode=True)
 
 
+def get_client_by_id(clientes: list[dict], cliente_id: int) -> dict | None:
+    """Retorna um cliente pelo seu ID."""
+    for cliente in clientes:
+        if cliente["id"] == cliente_id:
+            return cliente
+    return None
+
+
 def add_client(
     nome: str,
     segmento: str,

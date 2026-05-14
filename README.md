@@ -62,9 +62,11 @@ Isso exibe a arquitetura do sistema e os clientes cadastrados.
 ## ROI
 
 - `python3 main.py --calculate-roi` — calcula ROI com dados de custo mensal e investimento inicial
-- no modo interativo, escolha a opção "Calcular ROI"
+- `python3 main.py --list-roi` — lista os cenários de ROI salvos
+- no modo interativo, escolha a opção "Calcular ROI" ou "Listar cenários de ROI salvos"
 
 Os clientes são salvos em `core/clients.yaml`.
+Cenários de ROI são salvos em `core/roi_scenarios.yaml`.
 
 ## GitHub Actions
 
