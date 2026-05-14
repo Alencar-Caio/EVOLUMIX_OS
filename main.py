@@ -2,6 +2,14 @@ import argparse
 
 from modules.client import add_client, display_clients, get_client_by_id, load_clients
 from modules.proposal import build_proposal, save_proposal
+from modules.pipeline import (
+    add_pipeline_item,
+    display_pipeline,
+    get_pipeline_item_by_id,
+    load_pipeline,
+    STAGES,
+    update_pipeline_status,
+)
 from modules.roi import (
     add_roi_scenario,
     display_roi_results,
@@ -111,6 +119,67 @@ def prompt_generate_proposal() -> None:
     print(f"Proposta salva em: {file_path}")
 
 
+def prompt_add_pipeline_item() -> None:
+    print("\nAdicionar cenário ao pipeline")
+    scenarios = load_roi_scenarios()
+    if not scenarios:
+        print("Nenhum cenário de ROI disponível. Gere um cenário antes.")
+        return
+
+    display_roi_scenarios(scenarios)
+    raw_id = input("Digite o ID do cenário para adicionar ao pipeline: ").strip()
+    if not raw_id.isdigit():
+        print("ID inválido. Operação cancelada.")
+        return
+
+    scenario = get_roi_scenario_by_id(scenarios, int(raw_id))
+    if scenario is None:
+        print("Cenário não encontrado. Operação cancelada.")
+        return
+
+    item = add_pipeline_item(
+        client_id=scenario["client_id"],
+        client_name=scenario["client_name"],
+        scenario_id=scenario["id"],
+    )
+    print(f"Cenário adicionado ao pipeline com ID {item['id']}.")
+
+
+def prompt_advance_pipeline() -> None:
+    print("\nAtualizar etapa do pipeline")
+    items = load_pipeline()
+    if not items:
+        print("Nenhum item no pipeline.")
+        return
+
+    display_pipeline(items)
+    raw_id = input("Digite o ID do item do pipeline: ").strip()
+    if not raw_id.isdigit():
+        print("ID inválido. Operação cancelada.")
+        return
+
+    item = get_pipeline_item_by_id(items, int(raw_id))
+    if item is None:
+        print("Item não encontrado. Operação cancelada.")
+        return
+
+    print("Status disponíveis:")
+    for stage in STAGES:
+        print(f"- {stage}")
+
+    new_status = input("Digite o novo status: ").strip()
+    if new_status not in STAGES:
+        print("Status inválido. Operação cancelada.")
+        return
+
+    updated = update_pipeline_status(item["id"], new_status)
+    if updated is None:
+        print("Falha ao atualizar o item do pipeline.")
+        return
+
+    print(f"Item {item['id']} atualizado para {new_status}.")
+
+
 def run_interactive_menu() -> None:
     while True:
         print("\n--- MENU INTERATIVO ---")
@@ -119,7 +188,9 @@ def run_interactive_menu() -> None:
         print("3. Calcular ROI para cliente")
         print("4. Listar cenários de ROI salvos")
         print("5. Gerar proposta de ROI")
-        print("6. Sair")
+        print("6. Adicionar cenário ao pipeline")
+        print("7. Atualizar etapa do pipeline")
+        print("8. Sair")
 
         opcao = input("Escolha uma opção: ").strip()
         if opcao == "1":
@@ -134,6 +205,10 @@ def run_interactive_menu() -> None:
         elif opcao == "5":
             prompt_generate_proposal()
         elif opcao == "6":
+            prompt_add_pipeline_item()
+        elif opcao == "7":
+            prompt_advance_pipeline()
+        elif opcao == "8":
             print("Saindo...")
             break
         else:
@@ -148,6 +223,9 @@ def main() -> None:
     parser.add_argument("--calculate-roi", action="store_true", help="Calcular ROI com dados de custo")
     parser.add_argument("--list-roi", action="store_true", help="Listar cenários de ROI salvos")
     parser.add_argument("--generate-proposal", action="store_true", help="Gerar proposta a partir de um cenário de ROI")
+    parser.add_argument("--list-pipeline", action="store_true", help="Listar itens do pipeline comercial")
+    parser.add_argument("--add-pipeline", action="store_true", help="Adicionar cenário de ROI ao pipeline")
+    parser.add_argument("--advance-pipeline", action="store_true", help="Atualizar etapa de um item do pipeline")
     args = parser.parse_args()
 
     config = load_config()
@@ -176,6 +254,18 @@ def main() -> None:
 
     if args.generate_proposal:
         prompt_generate_proposal()
+        return
+
+    if args.list_pipeline:
+        display_pipeline(load_pipeline())
+        return
+
+    if args.add_pipeline:
+        prompt_add_pipeline_item()
+        return
+
+    if args.advance_pipeline:
+        prompt_advance_pipeline()
         return
 
     print("\n--- CLIENTES ---")

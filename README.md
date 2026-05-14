@@ -66,9 +66,17 @@ Isso exibe a arquitetura do sistema e os clientes cadastrados.
 - `python3 main.py --generate-proposal` — gera uma proposta a partir de um cenário de ROI
 - no modo interativo, escolha a opção "Calcular ROI", "Listar cenários de ROI salvos" ou "Gerar proposta de ROI"
 
+## Pipeline comercial
+
+- `python3 main.py --list-pipeline` — lista os itens do pipeline comercial
+- `python3 main.py --add-pipeline` — adiciona um cenário de ROI ao pipeline
+- `python3 main.py --advance-pipeline` — atualiza o status de um item no pipeline
+- no modo interativo, escolha "Adicionar cenário ao pipeline" ou "Atualizar etapa do pipeline"
+
 Os clientes são salvos em `core/clients.yaml`.
 Cenários de ROI são salvos em `core/roi_scenarios.yaml`.
 Propostas geradas são salvas em `core/proposals/`.
+Pipeline é salvo em `core/pipeline.yaml`.
 
 ## GitHub Actions
 
