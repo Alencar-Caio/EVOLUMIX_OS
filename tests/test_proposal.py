@@ -16,8 +16,8 @@ def test_build_proposal_contains_client_and_scenario_id():
         "created_at": "2026-01-01T00:00:00",
     }
     proposal_text = build_proposal("Cliente A", scenario)
-    assert "Cliente: Cliente A" in proposal_text
-    assert "Cenário ID: 1" in proposal_text
+    assert "**Cliente:** Cliente A" in proposal_text
+    assert "**Cenário ID:** 1" in proposal_text
 
 
 def test_save_proposal_writes_file(tmp_path: Path):
