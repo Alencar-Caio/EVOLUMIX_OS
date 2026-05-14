@@ -4,16 +4,26 @@ Sistema operacional comercial inteligente para a Evolumix, focado em reduzir cus
 
 ## Visão geral
 
-- Arquitetura de pilares estratégicos
-- Engenharia de valor
-- Diagnóstico consultivo
-- Automação de proposta e ROI
+Sistema completo para consultoria de eficiência operacional:
+
+- ✅ Arquitetura de pilares estratégicos
+- ✅ Engenharia de valor e cálculo de ROI
+- ✅ Diagnóstico consultivo com clientes
+- ✅ Automação de propostas comerciais em Markdown
+- ✅ Pipeline comercial inteligente
+- ✅ CLI moderno e interface interativa
 
 ## Status atual
 
-- `main.py` já lê o arquivo `core/EVOLUMIX_FOUNDATION_v1.yaml`
-- O sistema já carrega arquitetura base e pilares estratégicos
-- Ainda faltam memória de clientes, cálculo de ROI automatizado e geração de propostas
+✅ Sistema operacional funcional com:
+- Arquitetura de pilares estratégicos carregada
+- Gerenciamento completo de clientes (CRUD)
+- Cálculo automatizado de ROI com payback
+- Geração de propostas comerciais em Markdown
+- Pipeline comercial com status tracking
+- CLI moderno com Typer
+- Testes automatizados completos
+- CI/CD com GitHub Actions
 
 ## Como usar
 
@@ -77,7 +87,7 @@ No modo interativo, use as opções do menu para navegar entre clientes, ROI, pr
 
 Os clientes são salvos em `core/clients.yaml`.
 Cenários de ROI são salvos em `core/roi_scenarios.yaml`.
-Propostas geradas são salvas em `core/proposals/`.
+Propostas geradas são salvas em `core/proposals/` como arquivos Markdown (.md) com formatação profissional.
 Pipeline é salvo em `core/pipeline.yaml`.
 
 ## GitHub Actions
