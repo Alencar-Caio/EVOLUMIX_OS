@@ -56,30 +56,24 @@ python3 -m pytest -q
 ## Uso básico
 
 ```bash
-python3 main.py
+python3 main.py --help
 ```
 
-Isso exibe a arquitetura do sistema e os clientes cadastrados.
+Isso exibe os comandos disponíveis do EVOLUMIX OS.
 
-## Funções de cliente
+## Comandos principais
 
-- `python3 main.py --interactive` — abre um menu interativo para listar e adicionar clientes
-- `python3 main.py --list-clients` — lista apenas os clientes
-- `python3 main.py --add-client` — adiciona um cliente com perguntas no terminal
+- `python3 main.py interactive` — abre o menu interativo para listar e adicionar clientes, gerar ROI, propostas e pipeline
+- `python3 main.py list-clients` — lista apenas os clientes
+- `python3 main.py add-client` — adiciona um cliente com perguntas no terminal
+- `python3 main.py calculate-roi` — calcula ROI com dados de custo mensal e investimento inicial
+- `python3 main.py list-roi` — lista os cenários de ROI salvos
+- `python3 main.py generate-proposal` — gera uma proposta a partir de um cenário de ROI
+- `python3 main.py list-pipeline` — lista os itens do pipeline comercial
+- `python3 main.py add-pipeline` — adiciona um cenário de ROI ao pipeline
+- `python3 main.py advance-pipeline` — atualiza o status de um item do pipeline
 
-## ROI
-
-- `python3 main.py --calculate-roi` — calcula ROI com dados de custo mensal e investimento inicial
-- `python3 main.py --list-roi` — lista os cenários de ROI salvos
-- `python3 main.py --generate-proposal` — gera uma proposta a partir de um cenário de ROI
-- no modo interativo, escolha a opção "Calcular ROI", "Listar cenários de ROI salvos" ou "Gerar proposta de ROI"
-
-## Pipeline comercial
-
-- `python3 main.py --list-pipeline` — lista os itens do pipeline comercial
-- `python3 main.py --add-pipeline` — adiciona um cenário de ROI ao pipeline
-- `python3 main.py --advance-pipeline` — atualiza o status de um item no pipeline
-- no modo interativo, escolha "Adicionar cenário ao pipeline" ou "Atualizar etapa do pipeline"
+No modo interativo, use as opções do menu para navegar entre clientes, ROI, proposta e pipeline.
 
 Os clientes são salvos em `core/clients.yaml`.
 Cenários de ROI são salvos em `core/roi_scenarios.yaml`.

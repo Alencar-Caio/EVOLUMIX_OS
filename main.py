@@ -1,4 +1,4 @@
-import argparse
+import typer
 
 from modules.client import add_client, display_clients, get_client_by_id, load_clients
 from modules.proposal import build_proposal, save_proposal
@@ -19,65 +19,67 @@ from modules.roi import (
 )
 from modules.system import display_system_info, load_config
 
+app = typer.Typer(help="EVOLUMIX OS - Sistema Comercial Inteligente")
+
 
 def parse_currency(value: str, field_name: str) -> float | None:
     try:
         return float(value.replace(",", "."))
     except ValueError:
-        print(f"Valor inválido para {field_name}. Operação cancelada.")
+        typer.echo(f"Valor inválido para {field_name}. Operação cancelada.")
         return None
 
 
 def prompt_add_client() -> None:
-    print("\nAdicionar novo cliente")
-    nome = input("Nome do cliente: ").strip()
+    typer.echo("\nAdicionar novo cliente")
+    nome = typer.prompt("Nome do cliente").strip()
     if not nome:
-        print("Nome obrigatório. Operação cancelada.")
-        return
+        typer.echo("Nome obrigatório. Operação cancelada.")
+        raise typer.Exit()
 
-    segmento = input("Segmento: ").strip()
-    foco_produto = input("Foco do produto: ").strip()
-    contato = input("Contato (opcional): ").strip()
+    segmento = typer.prompt("Segmento").strip()
+    foco_produto = typer.prompt("Foco do produto").strip()
+    contato = typer.prompt("Contato (opcional)").strip()
 
     cliente = add_client(nome, segmento, foco_produto, contato)
-    print(f"Cliente '{cliente['nome']}' cadastrado com ID {cliente['id']}.")
+    typer.echo(f"Cliente '{cliente['nome']}' cadastrado com ID {cliente['id']}.")
 
 
 def prompt_select_client(clientes: list[dict]) -> dict | None:
     if not clientes:
-        print("Nenhum cliente cadastrado. Adicione um cliente antes.")
+        typer.echo("Nenhum cliente cadastrado. Adicione um cliente antes.")
         return None
 
     display_clients(clientes)
-    raw_id = input("Digite o ID do cliente para ROI: ").strip()
+    raw_id = typer.prompt("Digite o ID do cliente para ROI").strip()
     if not raw_id.isdigit():
-        print("ID inválido. Operação cancelada.")
+        typer.echo("ID inválido. Operação cancelada.")
         return None
 
     cliente = get_client_by_id(clientes, int(raw_id))
     if cliente is None:
-        print("Cliente não encontrado. Operação cancelada.")
+        typer.echo("Cliente não encontrado. Operação cancelada.")
         return None
 
     return cliente
 
 
 def prompt_calculate_roi() -> None:
-    print("\nCalcular ROI")
+    typer.echo("\nCalcular ROI")
     clientes = load_clients()
     cliente = prompt_select_client(clientes)
     if cliente is None:
         return
 
-    current_cost = parse_currency(input("Custo atual mensal (R$): ").strip(), "custo atual")
+    current_cost = parse_currency(typer.prompt("Custo atual mensal (R$)").strip(), "custo atual")
     if current_cost is None:
         return
 
-    optimized_cost = parse_currency(input("Custo otimizado mensal (R$): ").strip(), "custo otimizado")
+    optimized_cost = parse_currency(typer.prompt("Custo otimizado mensal (R$)").strip(), "custo otimizado")
     if optimized_cost is None:
         return
 
-    investment = parse_currency(input("Investimento inicial (R$): ").strip(), "investimento")
+    investment = parse_currency(typer.prompt("Investimento inicial (R$)").strip(), "investimento")
     if investment is None:
         return
 
@@ -89,7 +91,7 @@ def prompt_calculate_roi() -> None:
         optimized_monthly_cost=optimized_cost,
         investment=investment,
     )
-    print(f"Cenário de ROI salvo como ID {scenario['id']} para o cliente {cliente['nome']}.")
+    typer.echo(f"Cenário de ROI salvo como ID {scenario['id']} para o cliente {cliente['nome']}.")
 
 
 def prompt_list_roi_scenarios() -> None:
@@ -97,102 +99,102 @@ def prompt_list_roi_scenarios() -> None:
 
 
 def prompt_generate_proposal() -> None:
-    print("\nGerar proposta de vendas")
+    typer.echo("\nGerar proposta de vendas")
     scenarios = load_roi_scenarios()
     if not scenarios:
-        print("Nenhum cenário de ROI disponível. Gere um cenário antes.")
-        return
+        typer.echo("Nenhum cenário de ROI disponível. Gere um cenário antes.")
+        raise typer.Exit()
 
     display_roi_scenarios(scenarios)
-    raw_id = input("Digite o ID do cenário para gerar proposta: ").strip()
+    raw_id = typer.prompt("Digite o ID do cenário para gerar proposta").strip()
     if not raw_id.isdigit():
-        print("ID inválido. Operação cancelada.")
-        return
+        typer.echo("ID inválido. Operação cancelada.")
+        raise typer.Exit()
 
     scenario = get_roi_scenario_by_id(scenarios, int(raw_id))
     if scenario is None:
-        print("Cenário não encontrado. Operação cancelada.")
-        return
+        typer.echo("Cenário não encontrado. Operação cancelada.")
+        raise typer.Exit()
 
     proposal_text = build_proposal(scenario["client_name"], scenario)
     file_path = save_proposal(proposal_text, scenario["id"])
-    print(f"Proposta salva em: {file_path}")
+    typer.echo(f"Proposta salva em: {file_path}")
 
 
 def prompt_add_pipeline_item() -> None:
-    print("\nAdicionar cenário ao pipeline")
+    typer.echo("\nAdicionar cenário ao pipeline")
     scenarios = load_roi_scenarios()
     if not scenarios:
-        print("Nenhum cenário de ROI disponível. Gere um cenário antes.")
-        return
+        typer.echo("Nenhum cenário de ROI disponível. Gere um cenário antes.")
+        raise typer.Exit()
 
     display_roi_scenarios(scenarios)
-    raw_id = input("Digite o ID do cenário para adicionar ao pipeline: ").strip()
+    raw_id = typer.prompt("Digite o ID do cenário para adicionar ao pipeline").strip()
     if not raw_id.isdigit():
-        print("ID inválido. Operação cancelada.")
-        return
+        typer.echo("ID inválido. Operação cancelada.")
+        raise typer.Exit()
 
     scenario = get_roi_scenario_by_id(scenarios, int(raw_id))
     if scenario is None:
-        print("Cenário não encontrado. Operação cancelada.")
-        return
+        typer.echo("Cenário não encontrado. Operação cancelada.")
+        raise typer.Exit()
 
     item = add_pipeline_item(
         client_id=scenario["client_id"],
         client_name=scenario["client_name"],
         scenario_id=scenario["id"],
     )
-    print(f"Cenário adicionado ao pipeline com ID {item['id']}.")
+    typer.echo(f"Cenário adicionado ao pipeline com ID {item['id']}.")
 
 
 def prompt_advance_pipeline() -> None:
-    print("\nAtualizar etapa do pipeline")
+    typer.echo("\nAtualizar etapa do pipeline")
     items = load_pipeline()
     if not items:
-        print("Nenhum item no pipeline.")
-        return
+        typer.echo("Nenhum item no pipeline.")
+        raise typer.Exit()
 
     display_pipeline(items)
-    raw_id = input("Digite o ID do item do pipeline: ").strip()
+    raw_id = typer.prompt("Digite o ID do item do pipeline").strip()
     if not raw_id.isdigit():
-        print("ID inválido. Operação cancelada.")
-        return
+        typer.echo("ID inválido. Operação cancelada.")
+        raise typer.Exit()
 
     item = get_pipeline_item_by_id(items, int(raw_id))
     if item is None:
-        print("Item não encontrado. Operação cancelada.")
-        return
+        typer.echo("Item não encontrado. Operação cancelada.")
+        raise typer.Exit()
 
-    print("Status disponíveis:")
+    typer.echo("Status disponíveis:")
     for stage in STAGES:
-        print(f"- {stage}")
+        typer.echo(f"- {stage}")
 
-    new_status = input("Digite o novo status: ").strip()
+    new_status = typer.prompt("Digite o novo status").strip()
     if new_status not in STAGES:
-        print("Status inválido. Operação cancelada.")
-        return
+        typer.echo("Status inválido. Operação cancelada.")
+        raise typer.Exit()
 
     updated = update_pipeline_status(item["id"], new_status)
     if updated is None:
-        print("Falha ao atualizar o item do pipeline.")
-        return
+        typer.echo("Falha ao atualizar o item do pipeline.")
+        raise typer.Exit()
 
-    print(f"Item {item['id']} atualizado para {new_status}.")
+    typer.echo(f"Item {item['id']} atualizado para {new_status}.")
 
 
 def run_interactive_menu() -> None:
     while True:
-        print("\n--- MENU INTERATIVO ---")
-        print("1. Listar clientes")
-        print("2. Adicionar cliente")
-        print("3. Calcular ROI para cliente")
-        print("4. Listar cenários de ROI salvos")
-        print("5. Gerar proposta de ROI")
-        print("6. Adicionar cenário ao pipeline")
-        print("7. Atualizar etapa do pipeline")
-        print("8. Sair")
+        typer.echo("\n--- MENU INTERATIVO ---")
+        typer.echo("1. Listar clientes")
+        typer.echo("2. Adicionar cliente")
+        typer.echo("3. Calcular ROI para cliente")
+        typer.echo("4. Listar cenários de ROI salvos")
+        typer.echo("5. Gerar proposta de ROI")
+        typer.echo("6. Adicionar cenário ao pipeline")
+        typer.echo("7. Atualizar etapa do pipeline")
+        typer.echo("8. Sair")
 
-        opcao = input("Escolha uma opção: ").strip()
+        opcao = typer.prompt("Escolha uma opção").strip()
         if opcao == "1":
             clientes = load_clients()
             display_clients(clientes)
@@ -209,69 +211,89 @@ def run_interactive_menu() -> None:
         elif opcao == "7":
             prompt_advance_pipeline()
         elif opcao == "8":
-            print("Saindo...")
+            typer.echo("Saindo...")
             break
         else:
-            print("Opção inválida. Tente novamente.")
+            typer.echo("Opção inválida. Tente novamente.")
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="EVOLUMIX OS - Sistema Comercial Inteligente")
-    parser.add_argument("--interactive", action="store_true", help="Abrir menu interativo")
-    parser.add_argument("--list-clients", action="store_true", help="Listar clientes cadastrados")
-    parser.add_argument("--add-client", action="store_true", help="Adicionar um novo cliente")
-    parser.add_argument("--calculate-roi", action="store_true", help="Calcular ROI com dados de custo")
-    parser.add_argument("--list-roi", action="store_true", help="Listar cenários de ROI salvos")
-    parser.add_argument("--generate-proposal", action="store_true", help="Gerar proposta a partir de um cenário de ROI")
-    parser.add_argument("--list-pipeline", action="store_true", help="Listar itens do pipeline comercial")
-    parser.add_argument("--add-pipeline", action="store_true", help="Adicionar cenário de ROI ao pipeline")
-    parser.add_argument("--advance-pipeline", action="store_true", help="Atualizar etapa de um item do pipeline")
-    args = parser.parse_args()
-
+@app.command()
+def interactive() -> None:
+    """Abrir menu interativo."""
     config = load_config()
-    print("\n===== EVOLUMIX OS =====\n")
+    typer.echo("\n===== EVOLUMIX OS =====\n")
     display_system_info(config)
+    run_interactive_menu()
 
-    if args.interactive:
-        run_interactive_menu()
-        return
 
-    if args.list_clients:
-        display_clients(load_clients())
-        return
-
-    if args.add_client:
-        prompt_add_client()
-        return
-
-    if args.calculate_roi:
-        prompt_calculate_roi()
-        return
-
-    if args.list_roi:
-        prompt_list_roi_scenarios()
-        return
-
-    if args.generate_proposal:
-        prompt_generate_proposal()
-        return
-
-    if args.list_pipeline:
-        display_pipeline(load_pipeline())
-        return
-
-    if args.add_pipeline:
-        prompt_add_pipeline_item()
-        return
-
-    if args.advance_pipeline:
-        prompt_advance_pipeline()
-        return
-
-    print("\n--- CLIENTES ---")
+@app.command("list-clients")
+def list_clients() -> None:
+    """Listar clientes cadastrados."""
     display_clients(load_clients())
-    print("\nUse '--interactive' para abrir o menu de operações de cliente, '--calculate-roi' para calcular ROI ou '--list-roi' para ver cenários salvos.")
+
+
+@app.command("add-client")
+def add_client_cmd() -> None:
+    """Adicionar um novo cliente."""
+    config = load_config()
+    typer.echo("\n===== EVOLUMIX OS =====\n")
+    display_system_info(config)
+    prompt_add_client()
+
+
+@app.command("calculate-roi")
+def calculate_roi_cmd() -> None:
+    """Calcular ROI com dados de custo."""
+    config = load_config()
+    typer.echo("\n===== EVOLUMIX OS =====\n")
+    display_system_info(config)
+    prompt_calculate_roi()
+
+
+@app.command("list-roi")
+def list_roi_cmd() -> None:
+    """Listar cenários de ROI salvos."""
+    config = load_config()
+    typer.echo("\n===== EVOLUMIX OS =====\n")
+    display_system_info(config)
+    prompt_list_roi_scenarios()
+
+
+@app.command("generate-proposal")
+def generate_proposal_cmd() -> None:
+    """Gerar proposta a partir de um cenário de ROI."""
+    config = load_config()
+    typer.echo("\n===== EVOLUMIX OS =====\n")
+    display_system_info(config)
+    prompt_generate_proposal()
+
+
+@app.command("list-pipeline")
+def list_pipeline_cmd() -> None:
+    """Listar itens do pipeline comercial."""
+    config = load_config()
+    typer.echo("\n===== EVOLUMIX OS =====\n")
+    display_system_info(config)
+    display_pipeline(load_pipeline())
+
+
+@app.command("add-pipeline")
+def add_pipeline_cmd() -> None:
+    """Adicionar um cenário de ROI ao pipeline."""
+    config = load_config()
+    typer.echo("\n===== EVOLUMIX OS =====\n")
+    display_system_info(config)
+    prompt_add_pipeline_item()
+
+
+@app.command("advance-pipeline")
+def advance_pipeline_cmd() -> None:
+    """Atualizar etapa de um item do pipeline."""
+    config = load_config()
+    typer.echo("\n===== EVOLUMIX OS =====\n")
+    display_system_info(config)
+    prompt_advance_pipeline()
 
 
 if __name__ == "__main__":
-    main()
+    app()
