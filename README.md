@@ -42,8 +42,29 @@ python main.py
 Instale as dependências com:
 
 ```bash
-python -m pip install -r requirements.txt
+python3 -m pip install -r requirements.txt
 ```
+
+## Uso básico
+
+```bash
+python3 main.py
+```
+
+Isso exibe a arquitetura do sistema e os clientes cadastrados.
+
+## Funções de cliente
+
+- `python3 main.py --interactive` — abre um menu interativo para listar e adicionar clientes
+- `python3 main.py --list-clients` — lista apenas os clientes
+- `python3 main.py --add-client` — adiciona um cliente com perguntas no terminal
+
+## ROI
+
+- `python3 main.py --calculate-roi` — calcula ROI com dados de custo mensal e investimento inicial
+- no modo interativo, escolha a opção "Calcular ROI"
+
+Os clientes são salvos em `core/clients.yaml`.
 
 ## GitHub Actions
 
