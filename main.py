@@ -18,6 +18,13 @@ from modules.roi import (
     load_roi_scenarios,
 )
 from modules.system import display_system_info, load_config
+from modules.whatsapp import (
+    generate_followup_script,
+    generate_initial_contact_script,
+    generate_objection_handling_script,
+    get_available_objections,
+    save_whatsapp_script,
+)
 
 app = typer.Typer(help="EVOLUMIX OS - Sistema Comercial Inteligente")
 
@@ -192,7 +199,9 @@ def run_interactive_menu() -> None:
         typer.echo("5. Gerar proposta de ROI")
         typer.echo("6. Adicionar cenário ao pipeline")
         typer.echo("7. Atualizar etapa do pipeline")
-        typer.echo("8. Sair")
+        typer.echo("8. Gerar script WhatsApp")
+        typer.echo("9. Tratar objeção via WhatsApp")
+        typer.echo("10. Sair")
 
         opcao = typer.prompt("Escolha uma opção").strip()
         if opcao == "1":
@@ -211,6 +220,10 @@ def run_interactive_menu() -> None:
         elif opcao == "7":
             prompt_advance_pipeline()
         elif opcao == "8":
+            prompt_generate_whatsapp_script()
+        elif opcao == "9":
+            prompt_handle_objection()
+        elif opcao == "10":
             typer.echo("Saindo...")
             break
         else:
@@ -293,6 +306,116 @@ def advance_pipeline_cmd() -> None:
     typer.echo("\n===== EVOLUMIX OS =====\n")
     display_system_info(config)
     prompt_advance_pipeline()
+
+
+def prompt_generate_whatsapp_script() -> None:
+    typer.echo("\nGerar script WhatsApp")
+    clientes = load_clients()
+    cliente = prompt_select_client(clientes)
+    if cliente is None:
+        return
+
+    scenarios = load_roi_scenarios()
+    client_scenarios = [s for s in scenarios if s["client_id"] == cliente["id"]]
+    if not client_scenarios:
+        typer.echo("Nenhum cenário de ROI encontrado para este cliente.")
+        typer.echo("Gere um cenário de ROI antes.")
+        return
+
+    typer.echo("Cenários disponíveis para este cliente:")
+    for scenario in client_scenarios:
+        typer.echo(f"ID {scenario['id']}: Economia R$ {scenario['monthly_savings']:.0f}/mês")
+
+    raw_id = typer.prompt("Digite o ID do cenário").strip()
+    if not raw_id.isdigit():
+        typer.echo("ID inválido.")
+        return
+
+    scenario = get_roi_scenario_by_id(scenarios, int(raw_id))
+    if scenario is None or scenario["client_id"] != cliente["id"]:
+        typer.echo("Cenário não encontrado.")
+        return
+
+    typer.echo("Tipo de script:")
+    typer.echo("1. Primeiro contato")
+    typer.echo("2. Follow-up (até 3 dias)")
+    typer.echo("3. Follow-up (3-7 dias)")
+    typer.echo("4. Follow-up (7+ dias)")
+
+    choice = typer.prompt("Escolha o tipo (1-4)").strip()
+    if choice == "1":
+        script = generate_initial_contact_script(cliente["nome"], cliente.get("segmento", "cliente"))
+        script_type = "initial_contact"
+    elif choice in ["2", "3", "4"]:
+        days = 1 if choice == "2" else 5 if choice == "3" else 10
+        script = generate_followup_script(cliente["nome"], scenario, days)
+        script_type = f"followup_{days}d"
+    else:
+        typer.echo("Opção inválida.")
+        return
+
+    typer.echo("\n--- SCRIPT GERADO ---")
+    typer.echo(script)
+    typer.echo("\n--- FIM DO SCRIPT ---")
+
+    if typer.confirm("Salvar este script em arquivo?"):
+        saved_file = save_whatsapp_script(script, cliente["nome"], script_type)
+        typer.echo(f"Script salvo em: {saved_file}")
+
+
+def prompt_handle_objection() -> None:
+    typer.echo("\nTratar objeção via WhatsApp")
+    clientes = load_clients()
+    cliente = prompt_select_client(clientes)
+    if cliente is None:
+        return
+
+    scenarios = load_roi_scenarios()
+    client_scenarios = [s for s in scenarios if s["client_id"] == cliente["id"]]
+    if not client_scenarios:
+        typer.echo("Nenhum cenário de ROI encontrado para este cliente.")
+        return
+
+    scenario = client_scenarios[0]  # Usa o primeiro cenário
+
+    objections = get_available_objections()
+    typer.echo("Objeções disponíveis:")
+    for i, obj in enumerate(objections, 1):
+        typer.echo(f"{i}. {obj.replace('_', ' ').title()}")
+
+    choice = typer.prompt("Escolha a objeção (número)").strip()
+    if not choice.isdigit() or int(choice) < 1 or int(choice) > len(objections):
+        typer.echo("Opção inválida.")
+        return
+
+    objection_type = objections[int(choice) - 1]
+    script = generate_objection_handling_script(objection_type, cliente["nome"], scenario)
+
+    typer.echo("\n--- SCRIPT PARA OBJEÇÃO ---")
+    typer.echo(script)
+    typer.echo("\n--- FIM DO SCRIPT ---")
+
+    if typer.confirm("Salvar este script em arquivo?"):
+        saved_file = save_whatsapp_script(script, cliente["nome"], f"objection_{objection_type}")
+        typer.echo(f"Script salvo em: {saved_file}")
+
+
+@app.command("generate-whatsapp")
+def generate_whatsapp_cmd() -> None:
+    """Gerar script de WhatsApp para cliente."""
+    config = load_config()
+    typer.echo("\n===== EVOLUMIX OS =====\n")
+    display_system_info(config)
+    prompt_generate_whatsapp_script()
+
+
+@app.command("handle-objection")
+def handle_objection_cmd() -> None:
+    """Gerar script para tratar objeção via WhatsApp."""
+    config = load_config()
+    typer.echo("\n===== EVOLUMIX OS =====\n")
+    display_system_info(config)
+    prompt_handle_objection()
 
 
 if __name__ == "__main__":

@@ -10,8 +10,8 @@ Sistema completo para consultoria de eficiência operacional:
 - ✅ Engenharia de valor e cálculo de ROI
 - ✅ Diagnóstico consultivo com clientes
 - ✅ Automação de propostas comerciais em Markdown
-- ✅ Pipeline comercial inteligente
-- ✅ CLI moderno e interface interativa
+- ✅ Pipeline comercial inteligente- ✅ Scripts automatizados de WhatsApp para vendas
+- ✅ Tratamento automatizado de objeções- ✅ CLI moderno e interface interativa
 
 ## Status atual
 
@@ -81,7 +81,8 @@ Isso exibe os comandos disponíveis do EVOLUMIX OS.
 - `python3 main.py generate-proposal` — gera uma proposta a partir de um cenário de ROI
 - `python3 main.py list-pipeline` — lista os itens do pipeline comercial
 - `python3 main.py add-pipeline` — adiciona um cenário de ROI ao pipeline
-- `python3 main.py advance-pipeline` — atualiza o status de um item do pipeline
+- `python3 main.py generate-whatsapp` — gera script de WhatsApp personalizado baseado no perfil do cliente e cenário de ROI
+- `python3 main.py handle-objection` — gera script para tratar objeções comuns dos clientes via WhatsApp
 
 No modo interativo, use as opções do menu para navegar entre clientes, ROI, proposta e pipeline.
 
@@ -89,6 +90,7 @@ Os clientes são salvos em `core/clients.yaml`.
 Cenários de ROI são salvos em `core/roi_scenarios.yaml`.
 Propostas geradas são salvas em `core/proposals/` como arquivos Markdown (.md) com formatação profissional.
 Pipeline é salvo em `core/pipeline.yaml`.
+Scripts de WhatsApp são salvos em `core/whatsapp_scripts/` para follow-up e tratamento de objeções.
 
 ## GitHub Actions
 
