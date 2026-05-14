@@ -37,6 +37,14 @@ python main.py
 - `core/EVOLUMIX_OS_ONBOARDING.md` — visão e roadmap
 - `modules/`, `pipeline/`, `playbooks/`, `prompts/`, `roi/`, `states/` — pastas de evolução
 
+## Dependências
+
+Instale as dependências com:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
 ## GitHub Actions
 
 O repositório inclui uma pipeline básica de CI em `.github/workflows/python-ci.yml` para validar a execução do projeto.
