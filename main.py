@@ -1,10 +1,12 @@
 import argparse
 
 from modules.client import add_client, display_clients, get_client_by_id, load_clients
+from modules.proposal import build_proposal, save_proposal
 from modules.roi import (
     add_roi_scenario,
     display_roi_results,
     display_roi_scenarios,
+    get_roi_scenario_by_id,
     load_roi_scenarios,
 )
 from modules.system import display_system_info, load_config
@@ -86,6 +88,29 @@ def prompt_list_roi_scenarios() -> None:
     display_roi_scenarios(load_roi_scenarios())
 
 
+def prompt_generate_proposal() -> None:
+    print("\nGerar proposta de vendas")
+    scenarios = load_roi_scenarios()
+    if not scenarios:
+        print("Nenhum cenário de ROI disponível. Gere um cenário antes.")
+        return
+
+    display_roi_scenarios(scenarios)
+    raw_id = input("Digite o ID do cenário para gerar proposta: ").strip()
+    if not raw_id.isdigit():
+        print("ID inválido. Operação cancelada.")
+        return
+
+    scenario = get_roi_scenario_by_id(scenarios, int(raw_id))
+    if scenario is None:
+        print("Cenário não encontrado. Operação cancelada.")
+        return
+
+    proposal_text = build_proposal(scenario["client_name"], scenario)
+    file_path = save_proposal(proposal_text, scenario["id"])
+    print(f"Proposta salva em: {file_path}")
+
+
 def run_interactive_menu() -> None:
     while True:
         print("\n--- MENU INTERATIVO ---")
@@ -93,7 +118,8 @@ def run_interactive_menu() -> None:
         print("2. Adicionar cliente")
         print("3. Calcular ROI para cliente")
         print("4. Listar cenários de ROI salvos")
-        print("5. Sair")
+        print("5. Gerar proposta de ROI")
+        print("6. Sair")
 
         opcao = input("Escolha uma opção: ").strip()
         if opcao == "1":
@@ -106,6 +132,8 @@ def run_interactive_menu() -> None:
         elif opcao == "4":
             prompt_list_roi_scenarios()
         elif opcao == "5":
+            prompt_generate_proposal()
+        elif opcao == "6":
             print("Saindo...")
             break
         else:
@@ -119,6 +147,7 @@ def main() -> None:
     parser.add_argument("--add-client", action="store_true", help="Adicionar um novo cliente")
     parser.add_argument("--calculate-roi", action="store_true", help="Calcular ROI com dados de custo")
     parser.add_argument("--list-roi", action="store_true", help="Listar cenários de ROI salvos")
+    parser.add_argument("--generate-proposal", action="store_true", help="Gerar proposta a partir de um cenário de ROI")
     args = parser.parse_args()
 
     config = load_config()
@@ -143,6 +172,10 @@ def main() -> None:
 
     if args.list_roi:
         prompt_list_roi_scenarios()
+        return
+
+    if args.generate_proposal:
+        prompt_generate_proposal()
         return
 
     print("\n--- CLIENTES ---")

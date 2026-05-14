@@ -35,6 +35,14 @@ def save_roi_scenarios(scenarios: list[dict], path: str | Path | None = None) ->
         yaml.safe_dump({"roi_scenarios": scenarios}, arquivo, sort_keys=False, allow_unicode=True)
 
 
+def get_roi_scenario_by_id(scenarios: list[dict], scenario_id: int) -> dict | None:
+    """Retorna um cenário de ROI pelo seu ID."""
+    for scenario in scenarios:
+        if scenario["id"] == scenario_id:
+            return scenario
+    return None
+
+
 def add_roi_scenario(
     client_id: int,
     client_name: str,

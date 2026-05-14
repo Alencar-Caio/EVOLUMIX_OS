@@ -63,10 +63,12 @@ Isso exibe a arquitetura do sistema e os clientes cadastrados.
 
 - `python3 main.py --calculate-roi` — calcula ROI com dados de custo mensal e investimento inicial
 - `python3 main.py --list-roi` — lista os cenários de ROI salvos
-- no modo interativo, escolha a opção "Calcular ROI" ou "Listar cenários de ROI salvos"
+- `python3 main.py --generate-proposal` — gera uma proposta a partir de um cenário de ROI
+- no modo interativo, escolha a opção "Calcular ROI", "Listar cenários de ROI salvos" ou "Gerar proposta de ROI"
 
 Os clientes são salvos em `core/clients.yaml`.
 Cenários de ROI são salvos em `core/roi_scenarios.yaml`.
+Propostas geradas são salvas em `core/proposals/`.
 
 ## GitHub Actions
 
